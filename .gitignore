@@ -1,0 +1,12 @@
+__pycache__/
+.venv/
+.env
+.env.*
+!.env.example
+reports/
+resume.txt
+resume.pdf
+private/
+*.sqlite*
+*.db
+*.db-*

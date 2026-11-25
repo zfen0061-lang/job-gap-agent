@@ -1,0 +1,52 @@
+[
+  {
+    "title": "百度｜AI Agent 开发工程师（实习生）（J106681）",
+    "url": "https://talent.baidu.com/jobs/detail/INTERN/162291c8-43e8-4cc0-9c96-3fb0a7ebb720",
+    "text": "岗位摘要：负责 Agent 工具链、上下文和流程状态的工程开发，构建技能单元及回归评估流程。要求熟悉 LLM 应用开发，主要使用 Python，能读调用轨迹并定位故障。TypeScript、MCP、LangGraph 和评测集建设经验为加分项。"
+  },
+  {
+    "title": "百度｜智能体应用开发实习生（J99649）",
+    "url": "https://talent.baidu.com/jobs/detail/INTERN/e3cec5b8-b7a3-4946-99fc-b292b749cd53",
+    "text": "岗位摘要：在混合云及研发效能场景开发智能体，支持代码理解与问题溯源。要求掌握 Python、Java 或 Go 中一门语言，以及 RAG 和提示词设计。需要了解知识图谱，使用过 Agent 编排框架和应用平台。代码分析或 AST 实践为加分项。"
+  },
+  {
+    "title": "百度｜Dumate Agent研发实习生（J105734）",
+    "url": "https://talent.baidu.com/jobs/detail/INTERN/9463a5ea-b9e5-46ec-b112-be5807a9463e",
+    "text": "岗位摘要：开发 Agent 和配套基础设施，承担资源利用率、性能和稳定性改进。希望有 Linux、数据库和网络基础，容器和云原生工具（Docker、Kubernetes）或 LLM 应用经历为加分项。"
+  },
+  {
+    "title": "百度｜大模型应用方向实习生（J105638）",
+    "url": "https://talent.baidu.com/jobs/detail/INTERN/c7c0e663-c7fb-473d-82fa-57a9717d91b2",
+    "text": "岗位摘要：把智能体部署到信息抽取等场景，参与多轮交互、动态工具选择和输出纠错。要求掌握 PyTorch，在计算机视觉或自然语言处理方向有基础，并能使用 Flask、MySQL、Docker 等工程工具。多模态模型调优和推理部署经历为加分项。"
+  },
+  {
+    "title": "百度｜大模型应用后端研发实习生（GO/Python方向）（J101073）",
+    "url": "https://talent.baidu.com/jobs/detail/INTERN/15f123ac-2755-4324-b5ba-25682d0f9b40",
+    "text": "岗位摘要：参与核心产品后端和 AI 平台的功能研发。职位详细要求强调数据结构、算法、常用操作系统和工程调试，列举 C/C++、PHP、Go 等语言。软件工程项目、搜索、机器学习和云计算等经验为加分项。"
+  },
+  {
+    "title": "百度｜Agent算法实习生（J97505）",
+    "url": "https://talent.baidu.com/jobs/detail/INTERN/cd423c1c-7a35-4672-b0a7-2857308efe43",
+    "text": "岗位摘要：面向工业决策开发 Agent，研究生成、评估和迭代的多步骤流程，以及规划、记忆等系统组件。要求 Python 工程能力及项目实现经历，并在强化学习、优化算法或 Agent 框架方面至少具有一类实践经验。"
+  },
+  {
+    "title": "百度｜智能体算法工程师（实习）（J105620）",
+    "url": "https://talent.baidu.com/jobs/detail/INTERN/25264cd5-f23a-4d7b-8c06-489bbc844fbd",
+    "text": "岗位摘要：研究工具调用、规划及多智能体协作，构建任务数据、执行轨迹和 Agent 评测，并参与模型后训练。要求掌握 Python 或 C/C++ 等编程语言，熟悉强化学习算法，具备相关应用实践。该岗位面向硕士及以上。"
+  },
+  {
+    "title": "百度｜AI Agent研究&开发 实习生（J107330）",
+    "url": "https://talent.baidu.com/jobs/detail/INTERN/8d2918ff-2a7e-4721-b94a-947d73d18bd9",
+    "text": "岗位摘要：研究并开发 Agent 系统。要求扎实的机器学习基础，熟悉 Agent 循环、规划、工具调用与上下文，能用 Python 或 TypeScript 做出原型并评估迭代。还重视可展示的研究成果和阅读英文论文的能力。岗位面向硕士及以上。"
+  },
+  {
+    "title": "百度｜大模型&Agentic RL实习生（J107371）",
+    "url": "https://talent.baidu.com/jobs/detail/INTERN/179ca572-c5bb-48fc-a7d8-8335235aa745",
+    "text": "岗位摘要：在搜索、代码和多轮任务中构建及评估 Agent，探索强化学习后训练。要求熟悉 PPO 或 GRPO 等算法，理解函数调用、规划及执行反馈，并具有 PyTorch 工程经验。主要面向硕士及以上，优秀本科生也可考虑。"
+  },
+  {
+    "title": "百度｜Agent 评测算法实习生（J106616）",
+    "url": "https://talent.baidu.com/jobs/detail/INTERN/4bd782af-7dc6-44c1-b02a-e31bb6bc7cb2",
+    "text": "岗位摘要：围绕调度、路径和优化等产业任务维护 Agent 基准与评测环境。要求熟悉 Python、数据处理、Linux 和 Git，了解 LLM 调用和智能体，并能实现运筹优化或机器学习建模。岗位面向符合毕业届次条件的硕士或博士。"
+  }
+]
