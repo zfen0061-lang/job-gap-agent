@@ -1,0 +1,52 @@
+[
+  {
+    "title": "AI Agent大模型应用开发实习生-TikTok",
+    "url": "https://jobs.bytedance.com/campus/position/7644766035905136901/detail",
+    "text": "2027 届本科及以上。至少熟悉 Go、Python、Java 中的一门。岗位关注提示词设计、检索增强和向量表示的实践，以及 ReAct、多智能体、工具协议或评测相关经验。"
+  },
+  {
+    "title": "AI Agent移动端研发实习生-开发者服务",
+    "url": "https://jobs.bytedance.com/campus/position/7615512105395947829/detail",
+    "text": "2027 届本科及以上。关注 Python、Java、Go 等编程能力与数据结构基础，要求了解 Agent 技术和模型应用场景。有独立设计并搭建 Agent 应用的经验更合适。"
+  },
+  {
+    "title": "AI Agent全栈工程师实习生-中国交易与广告",
+    "url": "https://jobs.bytedance.com/campus/position/7647458668732172549/detail",
+    "text": "2027 届本科及以上。需具备前后端一体化开发能力，掌握 Python、Go、Java、JavaScript 中两门。考察提示词、记忆、工具调用、RAG 和多智能体，以及 AI 辅助编码、写测试和代码审查。"
+  },
+  {
+    "title": "Agent开发实习生-中国交易与广告",
+    "url": "https://jobs.bytedance.com/campus/position/7646283515486734597/detail",
+    "text": "2027 届本科及以上。需掌握 Python、TypeScript、Go、Java 中两门，有全栈项目经历。关注任务编排、多 Agent 协作、模型路由及 AI 编码工具，MCP 和工作流实践属于加分方向。"
+  },
+  {
+    "title": "扣子编程开发实习生-Coze",
+    "url": "https://jobs.bytedance.com/campus/position/7593365278961174789/detail",
+    "text": "2027 届本科及以上。关注 Go、Python 或 C++ 以及数据结构基础。岗位涉及 Agent、RAG 和提示词设计，偏好 AI 编程工具、IDE 扩展、自动化代码生成或 LLM 工程经验。"
+  },
+  {
+    "title": "Agent研发（可靠性方向）实习生 - 小荷健康",
+    "url": "https://jobs.bytedance.com/campus/position/7642255268450273541/detail",
+    "text": "2027 届本科及以上。看重有产出的 LLM 应用、平台基础设施或检索与评测项目。工程方向包括 Agent 编排、工具调用、状态管理、可观测性和数据流水线，要求有后端语言和端到端系统实践。"
+  },
+  {
+    "title": "大模型应用后端开发实习生（Agent方向）-巨量星图",
+    "url": "https://jobs.bytedance.com/campus/position/7611819929369135413/detail",
+    "text": "2027 届本科及以上，偏向计算机专业。需熟悉 Python 或 Go 及服务端基础，涉及 Ray、数据库、消息队列和 Elasticsearch。关注 LLM 应用架构、上下文工程、评测、RAG 与 ReAct。"
+  },
+  {
+    "title": "Agent研发实习生-飞书办公套件",
+    "url": "https://jobs.bytedance.com/campus/position/7634078484809140533/detail",
+    "text": "2027 届本科及以上。要求至少掌握一门编程语言，有 LLM 应用或 AI Coding 实践。更看重实际应用开发和优化经验，以及开源贡献或个人项目维护记录。"
+  },
+  {
+    "title": "AI Agent研发实习生-抖音研发",
+    "url": "https://jobs.bytedance.com/campus/position/7596973333250984245/detail",
+    "text": "2027 届本科及以上。关注移动端工程场景中的 Agent 应用与软件研发自动化。LLM、向量数据库、PySpark、RAG 或移动开发经历优先。每周至少实习四天，持续六个月以上。"
+  },
+  {
+    "title": "AI Agent开发实习生-抖音研发",
+    "url": "https://jobs.bytedance.com/campus/position/7657163398593906949/detail",
+    "text": "2027 届本科及以上。面向研发工具和 Agent 框架，要求至少掌握一项开发语言或客户端技术栈。关注上下文工程、Skills、Agent 编排、评测和问题拆解。每周至少实习四天，持续四个月以上。"
+  }
+]
