@@ -74,6 +74,16 @@ if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 
 如需只用模拟 JD 与真实模型测试，设置 Key 后运行 `agent.py` 即可。
 
+### 字节跳动岗位在线实跑
+
+2026 年 11 月 25 日，以「AI Agent 应用研发实习」为检索词，通过 DeepSeek Search / Fetch 从字节跳动招聘官网筛出 10 个单岗详情页，并使用脱敏简历完成端到端分析。这里公开的是该批岗位的标题、官网链接和技术要求摘要，可通过 `--jobs-file` 导入。完整抓取文本、个人简历、分析报告和数据库留在本地。
+
+可下载 [字节跳动 JD 快照](examples/bytedance-jd-snapshot.json)。使用自己的脱敏简历复跑时，需配置 DeepSeek API Key。摘要与原始正文的粒度不同，分析结果可能随输入和模型响应变化。
+
+```powershell
+.\.venv\Scripts\python.exe agent.py --jobs-file examples/bytedance-jd-snapshot.json --resume private/resume.txt
+```
+
 ## 匹配度口径
 
 - 必需技能权重为 2，加分技能权重为 1。简历证据完整、部分覆盖、未体现时分别计 100%、50%、0%。先计算各岗位的技术要求覆盖率，再对岗位等权平均。
