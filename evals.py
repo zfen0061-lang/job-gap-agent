@@ -111,6 +111,25 @@ def run_evals(database: Path, live_model: Callable | None = None) -> tuple[int, 
     return len(cases), saved, retries
 
 
+def run_revision_evals() -> bool:
+    claims = ('熟练 Python，修复了 300 个问题', '熟练 Python 和 Rust', '熟练 Python，负责生产计费平台')
+    passed = 0
+    for claim in claims:
+        mutated = json.loads(demo_analysis_json())
+        mutated['skills'][0]['resume_evidence'] = claim
+
+        def request(messages: list[dict]) -> str:
+            return json.dumps(mutated, ensure_ascii=False) if len(messages) == 2 else demo_analysis_json()
+
+        jobs = [eval_cases()[1].job]
+        result, attempts = analyze(jobs, my_resume, request)
+        report = build_report(result, jobs, jobs[0].title, '简历事实校验 Evals', attempts, [], resume=my_resume)
+        if attempts == 2 and claim not in json.dumps(report['resume_suggestions'], ensure_ascii=False):
+            passed += 1
+    print(f'简历事实校验：{passed}/{len(claims)} 通过（新增数字、技术栈和项目经历）。')
+    return passed == len(claims)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description='运行三条评估并保存通过的分析。')
     parser.add_argument('--live', action='store_true', help='调用 DeepSeek API，乱码用例的首次响应仍由测试注入')
@@ -127,7 +146,8 @@ def main() -> int:
         request = model_request(api_key, os.getenv('DEEPSEEK_MODEL', 'deepseek-flash'))
     default_db = Path('reports/career_evals_live.sqlite3' if args.live else 'reports/career_evals.sqlite3')
     total, saved, _ = run_evals(args.db or default_db, request)
-    return 0 if saved == total else 1
+    facts_passed = run_revision_evals()
+    return 0 if saved == total and facts_passed else 1
 
 
 if __name__ == '__main__':

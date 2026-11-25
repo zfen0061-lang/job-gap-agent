@@ -1,0 +1,7 @@
+{
+  "degree": "bachelor",
+  "graduation_year": 2028,
+  "cities": ["深圳", "上海"],
+  "days_per_week": 5,
+  "months": 3
+}

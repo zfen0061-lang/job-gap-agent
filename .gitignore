@@ -6,6 +6,7 @@ __pycache__/
 reports/
 resume.txt
 resume.pdf
+candidate_profile.json
 private/
 *.sqlite*
 *.db

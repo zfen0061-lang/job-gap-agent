@@ -68,6 +68,23 @@ class AgentTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, '检查 JD 2'):
             analyze(self.jobs * 2, my_resume, call)
 
+    def test_numbered_resume_evidence_is_resolved_after_an_invalid_index(self):
+        draft = json.loads(self.valid)
+        skill = draft['skills'][0]
+        skill.update(resume_evidence=None, resume_evidence_id=999)
+
+        def reply(messages):
+            if len(messages) > 2:
+                self.assertIn('resume_evidence_id', messages[-1]['content'])
+                fragments = json.loads(messages[1]['content'])['my_resume']
+                skill['resume_evidence_id'] = int(next(i for i, quote in fragments.items() if '熟练 Python' in quote))
+            return json.dumps(draft)
+
+        accepted, attempts = analyze(self.jobs, my_resume, reply)
+        self.assertEqual(attempts, 2)
+        self.assertIn('熟练 Python', accepted.skills[0].resume_evidence)
+        self.assertIn(accepted.skills[0].resume_evidence, my_resume)
+
     def test_gap_and_salary_from_ten_distinct_source_documents(self):
         jobs = load_jobs(Path(__file__).with_name('sample_jobs.json'), 10)
         self.assertEqual(len({job.url for job in jobs}), 10)
