@@ -2,7 +2,7 @@
 
 基于 Python 和 DeepSeek 的求职技能差距分析工具。检索真实招聘 JD，对照简历生成带原文证据的匹配度报告和项目补强建议，支持 SQLite 历史记录与 Evals 评估。
 
-输入目标岗位关键词和简历，工具会从招聘官网筛选最多 10 个单岗详情页，生成 Markdown 和 JSON 报告。可以先查看[离线样例报告](examples/离线样例报告.md)，了解技能缺口、推荐项目及其验收方式如何呈现。
+已经选好岗位时，可以用一条官网详情链接和自己的简历生成单岗位投递前体检。探索岗位方向时，也可输入关键词，从招聘官网筛选最多 10 个单岗详情页。两种模式均生成 Markdown 和 JSON 报告。可以先查看[离线样例报告](examples/离线样例报告.md)。
 
 报告还可以逐句给出简历修改建议、核对岗位硬条件，并用同一批 JD 对比修改前后的简历。
 
@@ -28,6 +28,35 @@ python3 -m venv .venv
 
 离线演示用一条模拟 JD、两版模拟简历和一份模拟候选人资料，展示逐句建议、硬条件、前后对比及一次格式纠错。正常输出为 **33.3%**，包含 RAG、Agent Workflow 两项缺口。结果保存在 `reports/report.md` 和 `reports/report.json`，并追加到 `reports/career_analysis.sqlite3`。
 
+## 本地网页
+
+在项目目录安装依赖后启动：
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe web_app.py
+```
+
+在浏览器打开 `http://127.0.0.1:8767`。点击「试用离线样例」可以体验报告、逐句采纳和下载，无需 Key。使用实际岗位时，上传 PDF/TXT 或粘贴简历，读取支持的官网链接或粘贴岗位正文。核对预览文本后，点击「生成体检报告」。
+
+在逐句改写区编辑或采纳建议后，原简历和定制版会并排显示，已应用的修改行标红。可以直接下载带文字层的 PDF 或 UTF-8 TXT。PDF 使用单栏布局，导出的是当前定制版文字。岗位来自支持的官网时，报告提供入口供用户自行提交。
+
+Windows 默认从系统选用可嵌入的中文字体。其他系统若需指定字体，可将 `RESUME_PDF_FONT` 设为本地的中文 TrueType 字体路径（.ttf 或 TrueType .ttc）。
+
+网页是绑定本机的体验版。分析请求会把预览中的简历文字和岗位正文发送给 DeepSeek，候选人资料用于本地核对。网页模式不把上传文件和简历报告写入项目或 SQLite。关闭或刷新页面后，需要重新输入材料。命令行模式仍可保存报告和对比两版简历的技术覆盖率。
+
+### 按简历找岗位与改写
+
+网页可仅上传简历，填写可选候选人资料，点击「按简历找岗位」。搜索请求只发送预定义岗位方向和技术关键词，分析阶段才使用简历正文。程序接入腾讯招聘公开列表和详情 JSON、百度招聘官方页面的内嵌岗位数据，并为 24 家公司招聘域名配置公开搜索。实际只纳入有正文的单岗详情，默认最多 10 条。
+
+先按公开硬条件排序，再比较技术证据覆盖率。有明确冲突的职位归入单独的折叠区，条件待确认最多 3 星。打开一条推荐可以查看证据、缺口和改写建议。
+
+已直连并实测的来源包括腾讯公开招聘 JSON，以及百度官网页面随正文返回的结构化数据。京东、蚂蚁、哔哩哔哩等仍通过公开搜索访问职位详情，避免把需要会话或正文不可读的接口算成已接通。公开搜索覆盖的配置表见 `job_discovery.py`。
+
+粘贴单个第三方招聘链接时，只读取该条公开详情。遇到登录限制或正文不可读，可使用手工粘贴 JD。
+
+点击「按职责、做法与结果改写更多」可以审核多个段落的改写。程序定位回原文，过滤改变了数字、英文技术名或程度限定词的建议。本人确认后才会写入下载版。
+
 ## 搜索真实岗位
 
 将 `.env.example` 复制为项目根目录的 `.env`，填入自己的 `DEEPSEEK_API_KEY`。当前终端显式设置的同名环境变量优先于 `.env`。本地 `.env` 已被 Git 忽略。
@@ -50,9 +79,26 @@ if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 
 在线模式默认从百度、字节跳动和腾讯的招聘官网筛选最多 10 个单岗详情页。程序利用搜索返回的正文，无有效正文时尝试 Fetch，再按链接和正文去重。搜索、网页读取和模型分析使用同一个 DeepSeek Key。检索数不足时按实际样本生成报告，并标明数量。筛选后的岗位保存为 `reports/jd_snapshot.json`，可用 `--jobs-file` 重新分析。职位是否继续招聘以官网为准。模型默认为 `deepseek-flash`，可以用 `DEEPSEEK_MODEL` 调整。 [DeepSeek Search & Fetch 文档](https://api-docs.deepseek.com/guides/search/) · [DeepSeek JSON Output 文档](https://api-docs.deepseek.com/guides/json_mode/)
 
+## 体检一个具体岗位
+
+在终端设置官方职位网址，然后运行。候选人资料可选，用于核对毕业届次、学历、到岗城市、每周出勤和实习时长。
+
+```powershell
+$jobUrl = Read-Host '粘贴岗位详情链接'
+.\.venv\Scripts\python.exe agent.py --job-url $jobUrl --resume private/resume.pdf --profile private/profile.json --out-dir reports/healthcheck
+```
+
+链接模式接受可公开访问的单岗详情。部分已接入的官网可在直接读取失败后查找同一链接的搜索结果。遇到登录限制或正文不可读时，将 JD 正文复制到 UTF-8 TXT：
+
+```powershell
+.\.venv\Scripts\python.exe agent.py --jd-file 'private/目标岗位.txt' --resume private/resume.pdf --out-dir reports/healthcheck
+```
+
+打开 `report.md`，先检查公开硬条件，再看 ATS 关键词文字检查、逐句修改建议和证据。关键词检查只使用有 JD 原文依据的技能词和内置别名。某个词出现在简历里时，技术经历的覆盖状态仍按证据判断。单岗位模式同样支持 `--compare-resume`，沿用同一组技能评价新版简历。
+
 ## 核对硬条件与对比两版简历
 
-将 [候选人资料模板](candidate_profile.example.json) 复制到 `private/profile.json` 并按自己情况填写。五个字段都可省略。学历值使用 `associate`、`bachelor`、`master` 或 `doctor`，毕业届次使用四位年份，地点使用城市名称数组，到岗天数和实习月数使用整数。资料只在本地用于和 JD 硬条件比对。
+将 [候选人资料模板](candidate_profile.example.json) 复制到 `private/profile.json` 并按自己情况填写。字段均可省略。学历值使用 `associate`、`bachelor`、`master` 或 `doctor`，毕业届次使用四位年份，地点使用城市名称数组，到岗天数和实习月数使用整数。如果填写的是至少能实习的月数，设置 `"months_at_least": true`。资料只在本地用于和 JD 硬条件比对。
 
 ```powershell
 .\.venv\Scripts\python.exe agent.py --jobs-file reports/jd_snapshot.json `
@@ -100,6 +146,8 @@ if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 
 Evals 使用固定响应走同一套分析、证据校验和 SQLite 入库流程，无需 DeepSeek Key。
 
+GitHub Actions 的 `Project quality` 工作流在 PR 和提交到 `main` 时运行单元测试与离线 Evals，测试数据库写入 Runner 的临时目录。
+
 | 用例 | 匹配度 | 判断 | 重试次数 |
 | --- | ---: | --- | ---: |
 | 完美匹配 | 100.0% | 无技能缺口 | 0 |
@@ -119,6 +167,14 @@ Evals 使用固定响应走同一套分析、证据校验和 SQLite 入库流程
 ```
 
 三个用例都使用 DeepSeek 返回的 JSON 做评估。第三个用例会先在本地注入一条无效响应，验证错误原因确实进入下一次请求，再由 DeepSeek 返回纠错结果。仅通过评估的报告才写入 `reports/career_evals_live.sqlite3`。
+
+### 真实岗位批量评估
+
+```powershell
+.\.venv\Scripts\python.exe -B live_job_evals.py
+```
+
+逐条调用 Fetch 读取 `examples/live_jobs.json` 中的官网岗位，再用模拟候选人和真实模型生成报告。检查岗位指定术语是否出现在原文、分析引用是否保留该术语，以及有明确标注的届次冲突能否识别。输出每条岗位的通过、未通过与抓取失败原因，默认写入 `reports/live-job-evals.json`。官网变动可能导致样本失败，此评估覆盖预先列明的检查项。
 
 ## SQLite 历史记录
 

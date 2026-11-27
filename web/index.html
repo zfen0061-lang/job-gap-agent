@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>投递前体检</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <script src="/assets/app.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>投递前体检</h1>
+        <p>按简历推荐岗位，或检查一个具体岗位并生成定制简历。</p>
+      </div>
+      <button type="button" id="demo" class="secondary">试用离线样例</button>
+    </header>
+    <form id="analysis">
+      <div class="inputs">
+        <section class="panel">
+          <h2>目标岗位</h2>
+          <label for="url">岗位详情链接</label>
+          <div class="inline">
+            <input type="url" id="url" maxlength="2048" placeholder="https://…">
+            <button type="button" id="fetch" class="secondary">读取 JD</button>
+          </div>
+          <label for="title">岗位名称</label>
+          <input type="text" id="title" maxlength="160" placeholder="例如 AI Agent 应用研发实习">
+          <label for="jd">岗位正文</label>
+          <textarea id="jd" rows="7" maxlength="16000" required placeholder="核对读取到的正文，也可以直接粘贴 JD。"></textarea>
+        </section>
+        <section class="panel">
+          <h2>我的简历</h2>
+          <label for="file">上传 PDF / UTF-8 TXT</label>
+          <input type="file" id="file" accept=".pdf,.txt,application/pdf,text/plain">
+          <label for="resume">简历文字预览</label>
+          <textarea id="resume" rows="9" maxlength="16000" required placeholder="上传后确认提取结果，也可以直接粘贴简历。"></textarea>
+          <p class="muted">体检、推荐和扩展改写会把预览中的简历文字发送给 DeepSeek。可先删去联系方式。</p>
+        </section>
+      </div>
+      <details class="panel">
+        <summary>补充候选人资料，用于核对硬条件</summary>
+        <div class="profile">
+          <label>学历
+            <select id="degree">
+              <option value="">待确认</option><option value="associate">专科</option>
+              <option value="bachelor">本科</option><option value="master">硕士</option>
+              <option value="doctor">博士</option>
+            </select>
+          </label>
+          <label>毕业届次<input id="graduation_year" type="number" min="2000" max="2100" placeholder="2028"></label>
+          <label>意向到岗城市<input id="cities" maxlength="100" placeholder="深圳、北京"></label>
+          <label>每周出勤天数<input id="days_per_week" type="number" min="1" max="7" placeholder="5"></label>
+          <label>可实习月数<input id="months" type="number" min="1" max="36" placeholder="3"></label>
+          <label class="profile-choice"><input id="months_at_least" type="checkbox"> 填写的是至少能实习的月数</label>
+        </div>
+      </details>
+      <div class="actions">
+        <button type="button" id="recommend">按简历找岗位</button>
+        <button type="submit" id="run" class="secondary">体检指定岗位</button>
+      </div>
+    </form>
+    <p id="status" role="status" aria-live="polite"></p>
+    <section id="recommendations" hidden class="panel" aria-labelledby="recommendation-title">
+      <h2 id="recommendation-title" tabindex="-1">推荐岗位</h2>
+      <p id="recommendation-summary" class="muted"></p>
+      <div id="recommendation-list"></div>
+      <details id="excluded-jobs" hidden>
+        <summary id="excluded-summary">有明确条件冲突的岗位</summary>
+        <div id="excluded-list"></div>
+      </details>
+      <div id="recommendation-notices"></div>
+    </section>
+    <section id="results" hidden aria-labelledby="report-title">
+      <div class="panel">
+        <h2 id="report-title" tabindex="-1"></h2>
+        <p id="summary"></p>
+        <p id="official-entry" hidden><a id="official-link" target="_blank" rel="noopener noreferrer">打开岗位来源</a></p>
+        <div id="conditions"></div>
+        <details><summary>查看技能依据与补强项目</summary><div id="skills"></div><div id="gaps"></div></details>
+      </div>
+      <div class="panel">
+        <h2>关键词检查</h2>
+        <p class="muted">显示原词或常见别名是否出现。技能经历以原文证据为准。</p>
+        <div id="keywords"></div>
+      </div>
+      <div class="panel">
+        <h2>逐句改写</h2>
+        <button type="button" id="expand-review" class="secondary">按职责、做法与结果改写更多</button>
+        <p id="review-status" role="status" aria-live="polite"></p>
+        <div id="rewrites"></div>
+      </div>
+      <div class="panel" id="resume-preview">
+        <h2>简历改前与改后</h2>
+        <p id="applied" class="muted"></p>
+        <div class="resume-panes">
+          <section class="original-pane" aria-labelledby="original-label">
+            <h3 id="original-label">原简历</h3>
+            <pre id="original"></pre>
+          </section>
+          <section aria-labelledby="draft-label">
+            <h3 id="draft-label">定制版 <span class="muted">标红处已修改</span></h3>
+            <pre id="draft"></pre>
+          </section>
+        </div>
+        <div class="actions">
+          <button type="button" id="pdf">下载 PDF</button>
+          <button type="button" id="download" class="secondary">下载 TXT</button>
+        </div>
+        <p id="export-status" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

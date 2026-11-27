@@ -126,6 +126,36 @@ class ConfigTests(unittest.TestCase):
 
 
 class SearchTests(unittest.TestCase):
+    def test_direct_fetch_falls_back_only_to_the_same_official_job(self):
+        source = DeepSeekJobSource('test-key')
+        detail = 'https://jobs.bytedance.com/campus/position/7644766035905136901/detail'
+        other = 'https://jobs.bytedance.com/campus/position/7615512105395947829/detail'
+        body = '任职要求：' + jd_text
+        source.post = Mock(side_effect=[{'title': '企业招聘', 'content': '请登录'}, {'results': [
+            {'url': other, 'title': '其他岗位', 'content': body},
+            {'url': detail + '?referral_code=example', 'title': '正确岗位', 'content': body},
+        ]}])
+        job = source.fetch_job(detail)
+        self.assertEqual((job.title, job.url, job.retrieval), ('正确岗位', detail, 'search'))
+
+    def test_fetches_one_official_detail_and_rejects_equivocal_pages(self):
+        source = DeepSeekJobSource('test-key')
+        detail = 'https://jobs.bytedance.com/campus/position/7644766035905136901/detail'
+        source.post = Mock(return_value={'title': '企业招聘', 'content': '研发实习生\n职位 ID：123\n任职要求：' + jd_text})
+        job = source.fetch_job(detail + '?referral_code=example')
+        self.assertEqual((job.title, job.url), ('研发实习生', detail))
+        source.post.assert_called_once_with('fetch', {'url': detail})
+
+        source.post.reset_mock()
+        with self.assertRaisesRegex(ValueError, '--jd-file'):
+            source.fetch_job('https://jobs.bytedance.com/campus/position')
+        source.post.assert_not_called()
+        for content in ('请登录', '该职位已下线\n' + jd_text):
+            with self.subTest(content=content[:8]):
+                source.post.return_value = {'title': '企业招聘', 'content': content}
+                with self.assertRaisesRegex(ValueError, '--jd-file'):
+                    source.fetch_job(detail)
+
     def test_official_listing_urls_are_rejected_and_referrals_are_removed(self):
         self.assertIsNone(canonical_url('https://jobs.bytedance.com/campus/position?referral_code=abc'))
         self.assertIsNone(canonical_url('https://careers.tencent.com/search.html?keyword=agent'))
@@ -155,6 +185,25 @@ class SearchTests(unittest.TestCase):
 
 
 class StorageTests(unittest.TestCase):
+    def test_single_job_text_fallback_writes_the_same_healthcheck_to_files_and_sqlite(self):
+        with TemporaryDirectory() as directory:
+            output = Path(directory)
+            source = output / '研发实习.txt'
+            resume = output / '简历.txt'
+            source.write_text(jd_text, encoding='utf-8')
+            resume.write_text(my_resume, encoding='utf-8')
+            args = ['agent.py', '--jd-file', str(source), '--resume', str(resume), '--out-dir', str(output)]
+            with patch.object(sys, 'argv', args), patch('agent.read_api_key', return_value='test'), \
+                    patch('agent.model_request', return_value=lambda _: demo_analysis_json()), redirect_stdout(io.StringIO()):
+                self.assertEqual(main(), 0)
+            report = json.loads((output / 'report.json').read_text(encoding='utf-8'))
+            self.assertEqual((report['target'], report['jd_count']), (source.stem, 1))
+            self.assertEqual(report['job_check']['risk'], '关键信息待确认')
+            self.assertIn('## ATS 关键词文字检查', (output / 'report.md').read_text(encoding='utf-8'))
+            with closing(sqlite3.connect(output / 'career_analysis.sqlite3')) as database:
+                saved, = database.execute('SELECT report_json FROM career_analysis').fetchone()
+            self.assertEqual(json.loads(saved), report)
+
     def test_normal_cli_persists_the_exported_report(self):
         with TemporaryDirectory() as directory:
             output = Path(directory)

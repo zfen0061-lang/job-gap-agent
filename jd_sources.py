@@ -22,6 +22,7 @@ BAIDU_TITLE = re.compile(r'(?m)^[ \t]*(?:#{1,6}[ \t]*)?([^\n#]{3,100}?[（(]J\d+
 BYTEDANCE_TITLE = re.compile(r'(?m)^\s*(?:#{1,6}\s*)?([^\n]{3,100})\s*\n+(?=[^\n]{0,150}职位\s*ID\s*[:：])')
 INTERNSHIP = re.compile(r'实习|\bintern(?:ship)?\b|ByteIntern', re.I)
 ENGINEERING = re.compile(r'应用研发|研发|开发|工程|算法|后端|前端|测试|评测|engineer|developer', re.I)
+JD_TEXT_FALLBACK = '可用 --jd-file 提供从岗位页复制的正文。'
 
 
 @dataclass(frozen=True)
@@ -29,6 +30,7 @@ class Job:
     title: str
     text: str
     url: str | None = None
+    retrieval: str | None = None
 
 
 def canonical_url(url: str) -> str | None:
@@ -73,6 +75,20 @@ def load_jobs(path: Path, limit: int) -> list[Job]:
     return list(jobs.values())[:limit]
 
 
+def job_from_page(url: str, title: str, body: str, retrieval: str | None = None) -> Job | None:
+    heading = JD_HEADING.search(body)
+    if len(body) < 100 or not heading or NOISE.search(body):
+        return None
+    host = urlsplit(url).hostname
+    title_pattern = {'talent.baidu.com': BAIDU_TITLE, 'jobs.bytedance.com': BYTEDANCE_TITLE}.get(host)
+    extracted_title = title_pattern.search(body) if title_pattern else None
+    if extracted_title:
+        title = extracted_title.group(1).strip()
+    if not title:
+        return None
+    return Job(title, body[max(0, heading.start() - 220):][:6000].strip(), url, retrieval)
+
+
 class DeepSeekJobSource:
     def __init__(self, api_key: str):
         self.api_key = api_key
@@ -91,6 +107,40 @@ class DeepSeekJobSource:
             raise RuntimeError(f'DeepSeek {endpoint} HTTP {exc.code}。') from None
         except (URLError, TimeoutError, ValueError):
             raise RuntimeError(f'DeepSeek {endpoint} 请求失败或返回了无效 JSON。') from None
+
+    def fetch_job(self, link: str) -> Job:
+        url = canonical_url(link.strip())
+        fallback = JD_TEXT_FALLBACK
+        if not url:
+            raise ValueError(f'请输入百度、字节跳动或腾讯招聘官网的单岗详情链接。{fallback}')
+        try:
+            page = self.post('fetch', {'url': url})
+        except RuntimeError as error:
+            raise RuntimeError(f'岗位详情读取失败。{error} {fallback}') from None
+        title = str(page.get('title') or '').strip() if isinstance(page, dict) else ''
+        body = str(page.get('content') or '').strip() if isinstance(page, dict) else ''
+        if NOISE.search(body):
+            raise ValueError(f'网页显示该岗位已下线或结束招聘。{fallback}')
+        job = job_from_page(url, title, body, 'fetch')
+        if job:
+            return job
+        parsed = urlsplit(url)
+        try:
+            search = self.post('search', {
+                'query': f'职位详情 site:{parsed.netloc}{parsed.path}',
+                'count': 10,
+                'need_content': True,
+            })
+        except RuntimeError as error:
+            raise RuntimeError(f'岗位详情及同链接搜索均未取得正文。{error} {fallback}') from None
+        for item in search.get('results', []) if isinstance(search, dict) else []:
+            link = item.get('url') if isinstance(item, dict) else None
+            if isinstance(link, str) and canonical_url(link) == url:
+                job = job_from_page(url, str(item.get('title') or '').strip(),
+                                    str(item.get('content') or '').strip(), 'search')
+                if job:
+                    return job
+        raise ValueError(f'未提取到可用的岗位正文，请在官网确认链接及页面状态。{fallback}')
 
     def search(self, target: str, limit: int) -> tuple[list[Job], list[str]]:
         candidates: dict[str, deque] = {}
@@ -139,16 +189,12 @@ class DeepSeekJobSource:
                         continue
                     body = str(page.get('content') or '').strip()
                     title = str(page.get('title') or title).strip()
-                if not title or len(body) < 100 or not JD_HEADING.search(body) or NOISE.search(body):
+                if not title:
                     continue
-                host = urlsplit(url).hostname
-                title_pattern = {'talent.baidu.com': BAIDU_TITLE, 'jobs.bytedance.com': BYTEDANCE_TITLE}.get(host)
-                if title_pattern:
-                    extracted_title = title_pattern.search(body)
-                    if extracted_title:
-                        title = extracted_title.group(1).strip()
-                heading = JD_HEADING.search(body)
-                body = body[max(0, heading.start() - 220):][:6000].strip()
+                job = job_from_page(url, title, body)
+                if not job:
+                    continue
+                title, body = job.title, job.text
                 if is_internship and '/INTERN/' not in url.upper() and not INTERNSHIP.search(title):
                     continue
                 if is_agent and not re.search(r'agent|智能体|大模型|llm', f'{title} {body[:1800]}', re.I):
@@ -158,7 +204,7 @@ class DeepSeekJobSource:
                 fingerprint = re.sub(r'\W+', '', body).casefold()
                 if fingerprint not in seen_content:
                     seen_content.add(fingerprint)
-                    jobs.append(Job(title, body, url))
+                    jobs.append(job)
         if len(jobs) < limit:
             notices.append(f'期望 {limit} 条，实际纳入 {len(jobs)} 条，覆盖率与缺口按实际样本计算。')
         return jobs, notices
